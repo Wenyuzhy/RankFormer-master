@@ -2,11 +2,11 @@ from thop import profile
 import torch
 import time
 # from net.CIDNet import CIDNet
-from net.network import SFCFormer
+from net.retinex import Retinex
 
 
 # model = CIDNet().to('cuda')  
-model = SFCFormer().to('cuda')
+model = Retinex().to('cuda')  
 input = torch.rand(1,3,256,256).to('cuda')  
 torch.cuda.synchronize()
 model.eval()

@@ -1,5 +1,5 @@
-# SFCNet: Bridging Spatial and Fourier Domains: A Combinatorial Network for Low-Light Image Enhancement
-<img src="figure\SFCNet.jpg"  height=400 width=900>
+# Rankformer: Rank-Aware Feature Aggregation for Efficient Low-light Image Enhancement with Retinex Theory
+<img src="figure\RankFormer.png"  height=400 width=900>
 
 ### Prerequisites
 
@@ -15,10 +15,10 @@ python eval.py
 ```
 
 ### Training
-Train on RAF-DB dataset:
+Train on LOLV1 dataset:
 
 ```
-python train.py --gpu 0 --batch_size 16
+python train.py --batch_size 16 --lol_v1 True
 ```
 
 

@@ -7,7 +7,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from loss.losses import *
 # from net.CIDNet import CIDNet
-from net.network import SFCFormer
+from net.retinex import Retinex
 
 eval_parser = argparse.ArgumentParser(description='Eval')
 eval_parser.add_argument('--self_ensemble', action='store_true', help='Use self-ensemble to obtain better results')
@@ -75,11 +75,9 @@ def eval(model, testing_data_loader, model_path, output_folder,norm_size=True,LO
             
             input = input.cuda()
             if ep.self_ensemble:
-                # output = self_ensemble(input, model)['img_out']
-                output = self_ensemble(input, model)
+                output, coarse = self_ensemble(input, model)
             else:
-                # output = model(input)['img_out']    
-                output = model(input) 
+                output, coarse = model(input)    
         if not os.path.exists(output_folder):          
             os.mkdir(output_folder)
         if not os.path.exists(output_folder + 'coarse/'):          
@@ -90,9 +88,9 @@ def eval(model, testing_data_loader, model_path, output_folder,norm_size=True,LO
             output = output[:, :, :h, :w]
         
         output_img = transforms.ToPILImage()(output.squeeze(0))
-        # output_coarse = transforms.ToPILImage()(coarse.squeeze(0))
+        output_coarse = transforms.ToPILImage()(coarse.squeeze(0))
         output_img.save(output_folder + name[0])
-        # output_coarse.save(output_folder + 'coarse/' + name[0])
+        output_coarse.save(output_folder + 'coarse/' + name[0])
         torch.cuda.empty_cache()
     print('===> End evaluation')
     torch.set_grad_enabled(True)
@@ -110,7 +108,7 @@ if __name__ == '__main__':
     num_workers = 1
     alpha = None
     if ep.lol:
-        eval_data = DataLoader(dataset=get_eval_set("./datasets/LOL_v1/eval15/low"), num_workers=num_workers, batch_size=1, shuffle=False)
+        eval_data = DataLoader(dataset=get_eval_set("./datasets/LOLdataset/eval15/low"), num_workers=num_workers, batch_size=1, shuffle=False)
         output_folder = './output/LOLv1/'
         if ep.perc:
             weight_path = './weights/LOLv1/w_perc.pth'
@@ -174,6 +172,6 @@ if __name__ == '__main__':
         norm_size = False
         weight_path = ep.unpaired_weights
         
-    eval_net = SFCFormer().cuda()
+    eval_net = Retinex().cuda()
     eval(eval_net, eval_data, weight_path, output_folder,norm_size=norm_size,LOL=ep.lol,v2=ep.lol_v2_real,unpaired=ep.unpaired,alpha=alpha)
 
